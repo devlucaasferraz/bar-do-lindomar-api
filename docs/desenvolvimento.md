@@ -27,7 +27,7 @@ Configurações comuns são herdadas pelos perfis: JPA valida o schema, Flyway e
 | `spring.datasource.password` | `DB_PASSWORD` | `lindomar_dev`, exclusivamente local | Obrigatória |
 | `app.jwt.secret` | `JWT_SECRET` | Sem segredo padrão válido | Obrigatória, mínimo 32 bytes UTF-8 |
 
-Dev permite sobrescrever os padrões de conexão com as variáveis da tabela. Prod não possui fallback para as credenciais locais.
+Dev permite sobrescrever os padrões de conexão com as variáveis da tabela. Prod não possui fallback para as credenciais locais. Com Neon, DATABASE_URL e DATABASE_URL_UNPOOLED são convertidas para as configurações JDBC. DB_URL/DB_USER/DB_PASSWORD explícitos têm prioridade. Consulte [Neon e Render](neon.md).
 
 ## JWT e administrador inicial
 
@@ -81,7 +81,7 @@ Se a porta do banco for alterada, ajuste DB_URL no processo Spring. SERVER_PORT 
 
 ## Produção
 
-A hospedagem deve selecionar `SPRING_PROFILES_ACTIVE=prod` e fornecer DB_URL, DB_USER, DB_PASSWORD e JWT_SECRET. ADMIN_* são necessários somente para criar o administrador em um banco sem administrador. JWT_TTL_SECONDS é opcional.
+A hospedagem deve selecionar `SPRING_PROFILES_ACTIVE=prod` e fornecer DB_URL, DB_USER, DB_PASSWORD e JWT_SECRET. Com Neon, use DATABASE_URL e DATABASE_URL_UNPOOLED no lugar das três variáveis DB_*. ADMIN_* são necessários somente para criar o administrador em um banco sem administrador. JWT_TTL_SECONDS é opcional.
 
 Para executar a imagem com o Compose de produção:
 

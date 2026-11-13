@@ -40,6 +40,8 @@ Encerrar os contêineres mantém o volume `postgres_data`. Ao iniciar novamente 
 
 Mudar as configurações de inicialização do PostgreSQL no Compose não altera um volume já inicializado. Não use remoção de volume para trocar credenciais de um banco com dados que precisam ser preservados.
 
+Para o PostgreSQL Neon e variáveis do serviço na Render, siga [Neon e deploy na Render](neon.md).
+
 ## Integração e publicação
 
 1. Desenvolver em `feature/nome-da-feature`, criada a partir de `develop`.

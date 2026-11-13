@@ -9,6 +9,7 @@
 - [Contrato HTTP, ProblemDetail e Swagger](../docs/api.md)
 - [Ambiente, testes e migrations](../docs/desenvolvimento.md)
 - [Operação e publicação](../docs/operacao.md)
+- [Neon e Render](../docs/neon.md)
 
 ## Regras de implementação
 
@@ -49,7 +50,7 @@ Ao concluir a implementação, validar a feature e adicionar somente os arquivos
 
 Integrar a feature em `develop`, preservando um único commit por feature; usar squash quando houver commits intermediários. Publicações em produção partem de `develop` para `main`.
 
-A documentação e as features aprovadas são integradas em `develop`. `main` recebe o código validado para produção; integrar branches não executa deploy nem transfere dados entre ambientes. Não há remoto configurado neste repositório; só executar pull/push depois de configurar um remoto.
+A documentação e as features aprovadas são integradas em `develop`. `main` recebe o código validado para produção; integrar branches não executa deploy nem transfere dados entre ambientes. O remoto origin aponta para o repositório GitHub. Não fazer push de credenciais, .neon ou arquivos locais gerados pela CLI Neon.
 
 ### Critérios de conclusão de uma feature
 

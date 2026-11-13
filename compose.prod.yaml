@@ -3,9 +3,15 @@ services:
     build: .
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      DB_URL: ${DB_URL:?Defina DB_URL para o PostgreSQL de producao}
-      DB_USER: ${DB_USER:?Defina DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD}
+      DATABASE_URL: ${DATABASE_URL:-}
+      DATABASE_URL_UNPOOLED: ${DATABASE_URL_UNPOOLED:-}
+      DB_URL: ${DB_URL:-}
+      DB_USER: ${DB_USER:-}
+      DB_PASSWORD: ${DB_PASSWORD:-}
+      DB_MIGRATIONS_URL: ${DB_MIGRATIONS_URL:-}
+      DB_MIGRATIONS_USER: ${DB_MIGRATIONS_USER:-}
+      DB_MIGRATIONS_PASSWORD: ${DB_MIGRATIONS_PASSWORD:-}
+      DB_POOL_SIZE: ${DB_POOL_SIZE:-5}
       JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET com pelo menos 32 bytes}
       JWT_TTL_SECONDS: ${JWT_TTL_SECONDS:-28800}
       ADMIN_NOME: ${ADMIN_NOME:-}

@@ -40,10 +40,10 @@ A arquitetura é MVC. Veja os detalhes de [arquitetura e domínio](docs/arquitet
 
 <h3>Clonando</h3>
 
-O repositório ainda não possui remoto configurado. Substitua `<URL_DO_REPOSITORIO>` pela URL quando estiver disponível:
+Clone o repositório:
 
 ```bash
-git clone <URL_DO_REPOSITORIO>
+git clone https://github.com/devlucaasferraz/bar-do-lindomar-api.git
 cd bar-do-lindomar-api
 ```
 
@@ -80,6 +80,8 @@ Para produção, selecione explicitamente o perfil `prod` e forneça a conexão 
 ```bash
 docker compose -f compose.prod.yaml up --build -d --wait
 ```
+
+Para usar o PostgreSQL Neon com a API na Render, veja o [passo a passo completo de deploy](docs/neon.md#render-passo-a-passo).
 
 <h3>Primeiro acesso</h3>
 
@@ -148,4 +150,5 @@ As regras completas de contribuição e implementação estão em [agents/README
 - [Contrato da API e Swagger](docs/api.md).
 - [Ambiente de desenvolvimento e migrations](docs/desenvolvimento.md).
 - [Operação, persistência e publicação](docs/operacao.md).
+- [Neon e deploy na Render, com variáveis de ambiente](docs/neon.md).
 - [Orientações para agentes e contribuidores](agents/README.md).
