@@ -31,7 +31,7 @@ Gere um segredo aleatório, por exemplo com `openssl rand -hex 32`, e use o resu
 ```bash
 cp .env.example .env
 # Edite .env com as credenciais locais e o segredo JWT.
-docker compose up --build -d
+docker compose up --build -d --wait
 docker compose ps
 ```
 
@@ -76,6 +76,8 @@ Na primeira execução, a aplicação cria o administrador com hash BCrypt. E-ma
 
 Falta de configuração inicial, dados inválidos, segredo JWT insuficiente ou TTL não positivo impedem a inicialização. Não há recuperação de senha por endpoint nesta versão. Alterar `ADMIN_SENHA` depois do primeiro cadastro não troca a senha persistida.
 
+O bootstrap usa o banco conectado à aplicação. Um banco novo na nuvem precisa de suas próprias variáveis `ADMIN_*`; usuários locais não são transferidos automaticamente. Não existe conta administrativa fixa nas migrations, no código ou na imagem Docker.
+
 ## Migrations e verificação
 
 Migrations ficam em `src/main/resources/db/migration`, com sequência única:
@@ -94,4 +96,4 @@ Os testes usam PostgreSQL real via Testcontainers, com banco independente dos da
 
 ## Produção
 
-Hospedagem, HTTPS e publicação em `main` ficam para a etapa de implantação. Tokens existentes continuam válidos até expirar; não há refresh token ou revogação individual nesta versão. Trocar o segredo invalida todos os tokens anteriores. Restrinja acesso ao banco e injete credenciais pelo ambiente da hospedagem.
+A branch `main` recebe o código validado em `develop`. O merge é local enquanto não houver remoto configurado e não publica a aplicação na nuvem. Hospedagem e HTTPS continuam dependendo da implantação. Consulte [operação e publicação](operacao.md). Tokens existentes continuam válidos até expirar; não há refresh token ou revogação individual nesta versão. Trocar o segredo invalida todos os tokens anteriores. Restrinja acesso ao banco e injete credenciais pelo ambiente da hospedagem.

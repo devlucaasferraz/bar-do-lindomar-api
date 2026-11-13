@@ -34,9 +34,9 @@ A arquitetura é MVC. Veja os detalhes de [arquitetura e domínio](docs/arquitet
 
 <h3>Pré-requisitos</h3>
 
-- JDK 25 com `JAVA_HOME` configurado.
-- Git.
-- Docker com Docker Compose.
+- Docker com Docker Compose para executar a aplicação completa.
+- Git para clonar e contribuir.
+- JDK 25 com `JAVA_HOME` configurado somente para executar pelo Maven ou rodar os testes.
 
 <h3>Clonando</h3>
 
@@ -55,15 +55,21 @@ Copie `.env.example` para `.env`. Defina senha do PostgreSQL, nome/e-mail/senha 
 cp .env.example .env
 ```
 
-Edite os valores antes de iniciar. O administrador é criado apenas se ainda não existir; mudar a senha no ambiente depois não altera a conta persistida.
+Edite os valores antes de iniciar. As credenciais pertencem ao ambiente e não devem ser commitadas. O administrador é criado apenas se ainda não existir; mudar a senha no ambiente depois não altera a conta persistida. Cada banco, inclusive o da nuvem, precisa de sua própria configuração inicial.
 
 <h3>Iniciando</h3>
 
 ```bash
-docker compose up --build -d
+docker compose up --build -d --wait
 ```
 
 API em `http://localhost:8080`, com PostgreSQL persistido em volume. Para executar diretamente com Maven, exporte as variáveis da aplicação descritas em [ambiente de desenvolvimento](docs/desenvolvimento.md) e use `./mvnw spring-boot:run`.
+
+<h3>Primeiro acesso</h3>
+
+Abra o [Swagger UI](http://localhost:8080/swagger-ui/index.html), execute `POST /auth/login` com o e-mail e a senha configurados para o administrador e copie o campo `token`. Em **Authorize**, informe apenas o token JWT para testar criação, atualização e remoção de produtos. As consultas públicas não exigem login.
+
+A conta fica no banco daquele ambiente. Uma conta local não é transferida para a nuvem pelo Git ou pela imagem Docker. A branch `main` contém o código para produção; o merge não executa um deploy. Veja [operação e publicação](docs/operacao.md).
 
 Para validar, com JDK 25 e Docker disponíveis:
 
@@ -125,4 +131,5 @@ As regras completas de contribuição e implementação estão em [agents/README
 - [Regras de negócio](docs/regras-de-negocio.md).
 - [Contrato da API e Swagger](docs/api.md).
 - [Ambiente de desenvolvimento e migrations](docs/desenvolvimento.md).
+- [Operação, persistência e publicação](docs/operacao.md).
 - [Orientações para agentes e contribuidores](agents/README.md).

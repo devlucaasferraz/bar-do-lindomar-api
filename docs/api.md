@@ -56,7 +56,7 @@ E-mail é normalizado em minúsculas. Campos obrigatórios ou formato inválido 
 
 Enviar `Authorization: Bearer <token>` nas operações administrativas. JWT usa HS256 e emissor `bar-do-lindomar-api`. O segredo é externo; a validade padrão é 8 horas e pode ser alterada por `JWT_TTL_SECONDS`. Não há refresh token ou logout com revogação; ao expirar, fazer novo login. Roles são carregadas no token, portanto mudanças de permissão só afetam novos tokens. Trocar o segredo invalida todos os tokens anteriores.
 
-Consultas não exigem conta. Enviar token inválido ou expirado, mesmo em consulta pública, retorna 401. Não há cadastro público nem CRUD de usuários/roles.
+Consultas não exigem conta. Enviar token inválido ou expirado, mesmo em consulta pública, retorna 401. Não há cadastro público nem CRUD de usuários/roles. O primeiro administrador é criado pelo bootstrap no banco conectado à aplicação, usando as variáveis `ADMIN_*` daquele ambiente; não existe conta padrão versionada.
 
 ## GET /categorias
 
