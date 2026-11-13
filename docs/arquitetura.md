@@ -2,7 +2,7 @@
 
 [Voltar ao README](../README.md)
 
-A aplicação segue a arquitetura abaixo. Autenticação e categorias estão implementadas; produtos serão adicionados nas próximas features.
+A aplicação segue a arquitetura abaixo. Autenticação, categorias e manutenção de produtos estão implementadas.
 
 ## Arquitetura e organização
 
@@ -79,4 +79,4 @@ Cada entidade deve ter DTOs próprios, validações aplicáveis e mapper MapStru
 | Usuário | Nome obrigatório, e-mail válido e único, senha obrigatória na criação | Entrada conforme o fluxo de autenticação definido e resposta sem senha |
 | Role | Nome obrigatório, único e limitado a `ADMIN` e `CLIENTE` | Resposta; entrada validada se uma operação de escrita for adicionada |
 
-Limites de tamanho e a política de senha devem ser definidos na implementação e refletidos nos DTOs e nas migrations. Restrições de integridade também devem existir no banco. Mappers devem ignorar campos controlados pelo servidor, como IDs de criação e hashes de senha.
+Produto usa nome até 120 caracteres, descrição até 500 e preço decimal(12,2) não negativo. Usuário usa nome até 120, e-mail válido até 254 e hash BCrypt; senha inicial tem pelo menos 8 caracteres e no máximo 72 bytes UTF-8. Restrições de integridade também devem existir no banco. Mappers devem ignorar campos controlados pelo servidor, como IDs de criação e hashes de senha.

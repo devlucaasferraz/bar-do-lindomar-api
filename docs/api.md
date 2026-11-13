@@ -89,3 +89,13 @@ Os exemplos e as propostas deste documento devem ser atualizados junto com o con
 ## Categorias implementadas
 
 `GET /categorias` é público e retorna um array de objetos com `id`, `codigo` e `nome`, ordenado por nome. Códigos iniciais: `BEBIDAS`, `BEBIDAS_ALCOOLICAS`, `DOCES` e `SALGADOS`. Bombons/chicletes pertencem a DOCES. Não há CRUD de categorias.
+
+## Manutenção de produtos implementada
+
+POST e PUT recebem `nome` (obrigatório, até 120), `descricao` (opcional, até 500), `preco` (não negativo, até 10 dígitos inteiros e 2 decimais, em reais) e `categoriaId` (ID positivo existente). Exemplo:
+
+```json
+{"nome":"Refrigerante lata","descricao":"350 ml","preco":5.50,"categoriaId":1}
+```
+
+A resposta contém `id`, os campos do produto e `categoria` com ID, código e nome. PUT substitui os campos editáveis; descrição omitida torna-se nula. Nomes podem se repetir. POST retorna 201 e Location; PUT, 200; DELETE físico, 204. Produto ou categoria inexistente retorna 404. Identificadores e dados inválidos retornam 400.

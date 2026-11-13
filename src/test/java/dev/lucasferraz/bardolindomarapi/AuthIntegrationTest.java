@@ -49,6 +49,10 @@ class AuthIntegrationTest extends PostgresIntegrationTest {
         var client = request("POST", "/produtos", "{}", token("CLIENTE", Instant.now().plusSeconds(600), "bar-do-lindomar-api"));
         assertThat(client.statusCode()).isEqualTo(403);
         assertThat(json(client).get("status").asInt()).isEqualTo(403);
+        for (String method : new String[]{"PUT", "DELETE"}) {
+            assertThat(request(method, "/produtos/1", "{}", null).statusCode()).isEqualTo(401);
+            assertThat(request(method, "/produtos/1", "{}", token("CLIENTE", Instant.now().plusSeconds(600), "bar-do-lindomar-api")).statusCode()).isEqualTo(403);
+        }
         assertThat(request("POST", "/produtos", "{}", "invalido").statusCode()).isEqualTo(401);
         assertThat(request("POST", "/produtos", "{}", token("ADMIN", Instant.now().minusSeconds(600), "bar-do-lindomar-api")).statusCode()).isEqualTo(401);
         assertThat(request("POST", "/produtos", "{}", token("ADMIN", Instant.now().plusSeconds(600), "outro-emissor")).statusCode()).isEqualTo(401);
