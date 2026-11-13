@@ -18,7 +18,7 @@ As rotas abaixo são uma proposta para orientar as features. Ainda não existem 
 A listagem deve aceitar `nome` para pesquisa parcial e `categoria` para filtrar pelo código do enum. Os filtros podem ser combinados:
 
 ```http
-GET /produtos?nome=cerveja&categoria=CERVEJAS
+GET /produtos?nome=cerveja&categoria=BEBIDAS_ALCOOLICAS
 ```
 
 Uma pesquisa sem resultados retorna uma coleção vazia com status `200`. Um ID inexistente retorna `404`. A criação retorna `201` com o produto criado e o cabeçalho `Location`; a atualização retorna `200` com o produto atualizado; a remoção retorna `204`, sem corpo.
@@ -85,3 +85,7 @@ A cada feature, documentar no Swagger:
 - Requisitos de autenticação e autorização, quando o mecanismo de segurança for implementado.
 
 Os exemplos e as propostas deste documento devem ser atualizados junto com o contrato implementado. Não declarar no Swagger rotas ou esquemas de autenticação ainda inexistentes.
+
+## Categorias implementadas
+
+`GET /categorias` é público e retorna um array de objetos com `id`, `codigo` e `nome`, ordenado por nome. Códigos iniciais: `BEBIDAS`, `BEBIDAS_ALCOOLICAS`, `DOCES` e `SALGADOS`. Bombons/chicletes pertencem a DOCES. Não há CRUD de categorias.

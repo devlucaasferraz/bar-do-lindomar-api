@@ -2,7 +2,7 @@
 
 [Voltar ao README](../README.md)
 
-Este documento descreve a arquitetura planejada. O projeto ainda contém apenas o esqueleto Spring.
+A aplicação segue a arquitetura abaixo. Autenticação e categorias estão implementadas; produtos serão adicionados nas próximas features.
 
 ## Arquitetura e organização
 
@@ -56,9 +56,9 @@ O preço deve usar `BigDecimal` e uma coluna decimal no banco. Senhas devem ser 
 
 ### Categorias e enum
 
-Para atender ao requisito de uma entidade `Categoria` e de um enum, a proposta é manter `Categoria` como entidade persistida e `TipoCategoria` como enum dos códigos permitidos. Cada categoria possui um código único, armazenado pelo nome do enum, nunca pela posição ordinal.
+Para atender ao requisito de uma entidade `Categoria` e de um enum, a implementação mantém `Categoria` como entidade persistida e `TipoCategoria` como enum dos códigos permitidos. Cada categoria possui um código único, armazenado pelo nome do enum, nunca pela posição ordinal.
 
-Exemplos iniciais de códigos, sujeitos à definição do catálogo: `CERVEJAS`, `REFRIGERANTES`, `AGUAS` e `PETISCOS`.
+Categorias iniciais: `BEBIDAS` (não alcoólicas), `BEBIDAS_ALCOOLICAS`, `DOCES` (incluindo bombons e chicletes) e `SALGADOS`.
 
 Para adicionar uma categoria:
 
