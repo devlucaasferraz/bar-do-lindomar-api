@@ -16,6 +16,8 @@ Manter a solução simples e seguir MVC. As entidades ficam no pacote `models`, 
 
 Cada entidade deve possuir validações, DTOs e mappers adequados às operações expostas. Concentrar regras nos services e tratar exceções de forma centralizada com `ProblemDetail`. Somente administradores podem adicionar, modificar e remover produtos. O catálogo e as categorias são públicos; CLIENTE permanece no modelo sem permissão de escrita. Não adicionar cadastro ou CRUD de usuários sem ampliar explicitamente o escopo.
 
+Configurar a aplicação por application.properties (comum), application-dev.properties e application-prod.properties. Dev é o perfil padrão; prod exige conexão e segredo fornecidos pelo ambiente, sem credenciais de produção versionadas. O compose.yaml é de desenvolvimento e compose.prod.yaml é independente, para API com banco externo.
+
 Usar PostgreSQL e migrations Flyway. Novas categorias devem seguir o enum e a entidade definidos na arquitetura. Adicionar comentários somente quando necessários para melhorar a legibilidade.
 
 Atualizar os documentos em `docs/` e as anotações Swagger na mesma feature que alterar comportamento ou contrato. Manter propostas e funcionalidades implementadas claramente identificadas. Não registrar credenciais reais na documentação ou no código.

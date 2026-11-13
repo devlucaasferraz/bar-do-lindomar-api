@@ -2,15 +2,15 @@ services:
   api:
     build: .
     environment:
-      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-lindomar}
-      DB_USER: ${POSTGRES_USER:-lindomar}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no ambiente ou .env}
-      JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET com pelo menos 32 bytes}
+      SPRING_PROFILES_ACTIVE: dev
+      DB_URL: jdbc:postgresql://postgres:5432/lindomar
+      DB_USER: lindomar
+      DB_PASSWORD: lindomar_dev
+      JWT_SECRET: ${JWT_SECRET:-}
       JWT_TTL_SECONDS: ${JWT_TTL_SECONDS:-28800}
       ADMIN_NOME: ${ADMIN_NOME:-}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-}
       ADMIN_SENHA: ${ADMIN_SENHA:-}
-      SPRING_DOCKER_COMPOSE_ENABLED: "false"
     ports:
       - "${API_PORT:-8080}:8080"
     depends_on:
@@ -19,9 +19,9 @@ services:
   postgres:
     image: postgres:17-alpine
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-lindomar}
-      POSTGRES_USER: ${POSTGRES_USER:-lindomar}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no ambiente ou .env}
+      POSTGRES_DB: lindomar
+      POSTGRES_USER: lindomar
+      POSTGRES_PASSWORD: lindomar_dev
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:

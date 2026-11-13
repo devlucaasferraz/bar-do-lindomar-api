@@ -1,0 +1,15 @@
+services:
+  api:
+    build: .
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: ${DB_URL:?Defina DB_URL para o PostgreSQL de producao}
+      DB_USER: ${DB_USER:?Defina DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET com pelo menos 32 bytes}
+      JWT_TTL_SECONDS: ${JWT_TTL_SECONDS:-28800}
+      ADMIN_NOME: ${ADMIN_NOME:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_SENHA: ${ADMIN_SENHA:-}
+    ports:
+      - "${API_PORT:-8080}:8080"

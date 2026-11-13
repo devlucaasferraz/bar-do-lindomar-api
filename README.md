@@ -47,23 +47,39 @@ git clone <URL_DO_REPOSITORIO>
 cd bar-do-lindomar-api
 ```
 
-<h3>Configuração do ambiente</h3>
+<h3>Perfis de configuração</h3>
 
-Copie `.env.example` para `.env`. Defina senha do PostgreSQL, nome/e-mail/senha do administrador inicial e `JWT_SECRET` aleatório com pelo menos 32 bytes. Gere o segredo com `openssl rand -hex 32`.
+- `application.properties`: configurações comuns e perfil padrão `dev`.
+- `application-dev.properties`: conexão local de desenvolvimento.
+- `application-prod.properties`: conexão e segredo obrigatórios do ambiente de produção.
+
+O perfil `dev` usa PostgreSQL local com banco/usuário `lindomar` e senha exclusivamente local `lindomar_dev`. Configure `JWT_SECRET` no processo e, para um banco sem administrador, informe `ADMIN_NOME`, `ADMIN_EMAIL` e `ADMIN_SENHA`. Não há conta administrativa fixa no código.
 
 ```bash
-cp .env.example .env
+export JWT_SECRET="$(openssl rand -hex 32)"
 ```
 
-Edite os valores antes de iniciar. As credenciais pertencem ao ambiente e não devem ser commitadas. O administrador é criado apenas se ainda não existir; mudar a senha no ambiente depois não altera a conta persistida. Cada banco, inclusive o da nuvem, precisa de sua própria configuração inicial.
+Configure as credenciais iniciais no terminal ou na IDE antes de iniciar um banco novo. Elas não devem ser versionadas. Veja os detalhes e comandos em [configuração por perfis](docs/desenvolvimento.md).
 
 <h3>Iniciando</h3>
+
+Desenvolvimento, com API e banco locais:
 
 ```bash
 docker compose up --build -d --wait
 ```
 
-API em `http://localhost:8080`, com PostgreSQL persistido em volume. Para executar diretamente com Maven, exporte as variáveis da aplicação descritas em [ambiente de desenvolvimento](docs/desenvolvimento.md) e use `./mvnw spring-boot:run`.
+API em `http://localhost:8080`, com PostgreSQL persistido em volume. Para executar somente a API pelo Maven, suba o banco com `docker compose up -d postgres` e use:
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+Para produção, selecione explicitamente o perfil `prod` e forneça a conexão e os segredos pelo ambiente da hospedagem. O Compose de produção usa PostgreSQL externo:
+
+```bash
+docker compose -f compose.prod.yaml up --build -d --wait
+```
 
 <h3>Primeiro acesso</h3>
 
@@ -77,7 +93,7 @@ Para validar, com JDK 25 e Docker disponíveis:
 ./mvnw clean verify
 ```
 
-Os testes usam PostgreSQL independente via Testcontainers. O `.env` é carregado pelo Compose; a execução direta do Spring exige variáveis exportadas ou configuradas na IDE.
+Os testes usam PostgreSQL independente via Testcontainers. As configurações são carregadas dos arquivos `application*.properties`, e os segredos são fornecidos pelo processo, pela IDE ou pela hospedagem.
 
 <h2 id="routes">📍 API Endpoints</h2>
 

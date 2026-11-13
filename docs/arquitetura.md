@@ -26,11 +26,13 @@ src/
 │   │   └── config/
 │   └── resources/
 │       ├── application.properties
+│       ├── application-dev.properties
+│       ├── application-prod.properties
 │       └── db/migration/
 └── test/java/dev/lucasferraz/bardolindomarapi/
 ```
 
-Essa árvore representa a organização implementada.
+Essa árvore representa a organização implementada. Configurações comuns ficam em application.properties; dev é o perfil padrão e prod usa conexão e segredo obrigatórios do ambiente de hospedagem. Consulte [configuração por perfis](desenvolvimento.md).
 
 - **Controllers:** recebem parâmetros e DTOs, acionam validação e delegam aos services.
 - **Services:** aplicam regras de negócio e delimitam transações.

@@ -4,7 +4,7 @@
 
 ## Iniciar e conferir a aplicação
 
-Configure o ambiente conforme o [guia de desenvolvimento](desenvolvimento.md). O `.env` local é usado pelo Compose, fica fora do Git e não faz parte da imagem.
+Selecione dev ou prod conforme o [guia de configuração](desenvolvimento.md). Os arquivos application.properties, application-dev.properties e application-prod.properties definem as configurações; credenciais iniciais e segredos são fornecidos pelo processo ou pela hospedagem.
 
 ```bash
 docker compose up --build -d --wait
@@ -17,7 +17,7 @@ O comando aguarda os healthchecks do PostgreSQL e da API. A API verifica prontid
 - Swagger UI: `http://localhost:8080/swagger-ui/index.html`.
 - OpenAPI: `http://localhost:8080/v3/api-docs`.
 
-Se a porta estiver ocupada, ajuste `API_PORT` ou `POSTGRES_PORT` no `.env`. A conexão entre a API e o banco dentro do Compose continua usando a porta interna 5432 do serviço `postgres`.
+Se a porta estiver ocupada em desenvolvimento, defina `API_PORT` ou `POSTGRES_PORT` no processo que executa o Compose. A conexão entre a API e o banco dentro do Compose continua usando a porta interna 5432 do serviço `postgres`.
 
 ## Administrador por ambiente
 
@@ -38,7 +38,7 @@ docker compose down
 
 Encerrar os contêineres mantém o volume `postgres_data`. Ao iniciar novamente com o mesmo projeto Compose, contas e produtos permanecem. `docker compose down -v` remove o volume e seus dados; a próxima inicialização executa migrations e bootstrap em um banco vazio.
 
-Mudar usuário, senha ou nome do banco nas variáveis POSTGRES_* não altera um volume já inicializado. Não use remoção de volume para trocar credenciais de um banco com dados que precisam ser preservados.
+Mudar as configurações de inicialização do PostgreSQL no Compose não altera um volume já inicializado. Não use remoção de volume para trocar credenciais de um banco com dados que precisam ser preservados.
 
 ## Integração e publicação
 
@@ -50,6 +50,6 @@ Mudar usuário, senha ou nome do banco nas variáveis POSTGRES_* não altera um 
 
 Sem remoto configurado, commits e merges ficam apenas no repositório local. O merge em `main` não provisiona serviços, não faz push e não publica a API.
 
-Na futura hospedagem, configurar PostgreSQL persistente, conexão `DB_URL`/`DB_USER`/`DB_PASSWORD`, segredo `JWT_SECRET`, credenciais iniciais `ADMIN_*` e HTTPS. Manter os mesmos valores de conexão após reinícios e preservar o banco entre versões. Flyway aplica apenas migrations ainda não executadas; JPA valida o schema.
+Na hospedagem, selecionar o perfil `prod` e configurar PostgreSQL persistente, conexão `DB_URL`/`DB_USER`/`DB_PASSWORD`, segredo `JWT_SECRET`, credenciais iniciais `ADMIN_*` e HTTPS. O Compose de produção é independente: `docker compose -f compose.prod.yaml up --build -d --wait` usa apenas a API e um banco externo. Manter os mesmos valores de conexão após reinícios e preservar o banco entre versões. Flyway aplica apenas migrations ainda não executadas; JPA valida o schema.
 
 Tokens expiram em 8 horas por padrão, sem refresh token ou revogação individual. Trocar o segredo JWT invalida os tokens anteriores. Credenciais e segredos devem ficar no ambiente da hospedagem, fora do código e da documentação.
