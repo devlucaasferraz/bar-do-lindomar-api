@@ -46,6 +46,21 @@ public class ProdutoService {
         produtos.flush();
     }
 
+    @Transactional(readOnly = true)
+    public ProdutoResponse buscar(Long id) {
+        return mapper.toResponse(buscarEntidade(id));
+    }
+
+    @Transactional(readOnly = true)
+    public PaginaResponse<ProdutoResponse> listar(String nome,
+            dev.lucasferraz.bardolindomarapi.models.enums.TipoCategoria categoria, int page, int size) {
+        var pageable = org.springframework.data.domain.PageRequest.of(page, size,
+                org.springframework.data.domain.Sort.by("nome").and(org.springframework.data.domain.Sort.by("id")));
+        var result = produtos.findAll(dev.lucasferraz.bardolindomarapi.repositories.ProdutoSpecifications.filtrar(nome, categoria), pageable);
+        return new PaginaResponse<>(result.getContent().stream().map(mapper::toResponse).toList(),
+                result.getNumber(), result.getSize(), result.getTotalElements(), result.getTotalPages());
+    }
+
     private Produto buscarEntidade(Long id) {
         return produtos.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado."));
     }

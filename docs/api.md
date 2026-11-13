@@ -2,9 +2,9 @@
 
 [Voltar ao README](../README.md)
 
-## Contrato HTTP proposto
+## Contrato HTTP
 
-As rotas abaixo são uma proposta para orientar as features. Ainda não existem controllers implementando esse contrato.
+As rotas de produtos, categorias e autenticação estão implementadas.
 
 | Método | Rota | Operação | Acesso |
 | --- | --- | --- | --- |
@@ -21,7 +21,7 @@ A listagem deve aceitar `nome` para pesquisa parcial e `categoria` para filtrar 
 GET /produtos?nome=cerveja&categoria=BEBIDAS_ALCOOLICAS
 ```
 
-Uma pesquisa sem resultados retorna uma coleção vazia com status `200`. Um ID inexistente retorna `404`. A criação retorna `201` com o produto criado e o cabeçalho `Location`; a atualização retorna `200` com o produto atualizado; a remoção retorna `204`, sem corpo.
+Uma pesquisa sem resultados retorna uma página com `items` vazio e status `200`. Um ID inexistente retorna `404`. A criação retorna `201` com o produto criado e o cabeçalho `Location`; a atualização retorna `200` com o produto atualizado; a remoção retorna `204`, sem corpo.
 
 ## Autenticação implementada
 
@@ -31,7 +31,7 @@ Enviar `Authorization: Bearer <token>` para operações administrativas. JWT usa
 
 Catálogo público: consultas não exigem conta. Escrita exige `ADMIN`. `CLIENTE` permanece no modelo, sem cadastro ou CRUD público. Rotas não previstas são negadas.
 
-O formato final das respostas de listagem será definido na feature de consulta.
+O contrato de paginação está descrito abaixo.
 
 ## Tratamento de erros
 
@@ -99,3 +99,13 @@ POST e PUT recebem `nome` (obrigatório, até 120), `descricao` (opcional, até 
 ```
 
 A resposta contém `id`, os campos do produto e `categoria` com ID, código e nome. PUT substitui os campos editáveis; descrição omitida torna-se nula. Nomes podem se repetir. POST retorna 201 e Location; PUT, 200; DELETE físico, 204. Produto ou categoria inexistente retorna 404. Identificadores e dados inválidos retornam 400.
+
+## Consulta pública e paginação
+
+GET `/produtos` aceita `nome` (até 120 caracteres; trecho literal sem diferenciar maiúsculas/minúsculas), `categoria` (código exato do enum), `page` (a partir de 0) e `size` (1 a 100, padrão 20). Filtros combinam-se com E. Nome vazio não filtra; percentuais e sublinhados são literais, não curingas. Ordenação fixa por nome e ID.
+
+```json
+{"items":[],"page":0,"size":20,"totalElements":0,"totalPages":0}
+```
+
+Cada item contém `id`, `nome`, `descricao`, `preco` e `categoria` (`id`, `codigo`, `nome`). Página além do fim retorna items vazio e mantém os totais. Parâmetros inválidos retornam 400. GET `/produtos/{id}` retorna produto ou 404. Ambas as consultas são públicas.
