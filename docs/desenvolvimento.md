@@ -25,3 +25,11 @@ Nunca editar uma migration aplicada; criar uma nova. Flyway evolui o schema e JP
 `./mvnw clean verify` executa testes com PostgreSQL real via Testcontainers. Docker é obrigatório; o banco de testes é independente dos dados locais.
 
 MapStruct gera mappers durante a compilação. DTOs novos usam records e não dependem de Lombok.
+
+## Administrador inicial e JWT
+
+Exporte `JWT_SECRET` com pelo menos 32 bytes aleatórios (por exemplo, gerados com `openssl rand -hex 32`). Não reutilize o valor do exemplo em produção. `JWT_TTL_SECONDS` é positivo e tem padrão 28800.
+
+Na primeira execução, informe `ADMIN_NOME`, `ADMIN_EMAIL` e `ADMIN_SENHA`. A senha precisa de pelo menos 8 caracteres e no máximo 72 bytes UTF-8; nome tem até 120 caracteres e e-mail válido até 254. Se já existir administrador, essas variáveis não alteram sua senha. Se o e-mail informado pertencer a um cliente e não existir administrador, a aplicação falha sem promover esse usuário.
+
+A aplicação falha na inicialização se o segredo JWT for insuficiente ou faltar configuração para criar o primeiro administrador. Não existe recuperação de senha por endpoint nesta versão; proteja as credenciais de bootstrap.

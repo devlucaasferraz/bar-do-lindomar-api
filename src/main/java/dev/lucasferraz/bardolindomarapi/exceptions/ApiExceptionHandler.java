@@ -40,6 +40,16 @@ public class ApiExceptionHandler {
         return problema(HttpStatus.NOT_FOUND, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    public ProblemDetail autenticacao(Exception ex, HttpServletRequest request) {
+        return problema(HttpStatus.UNAUTHORIZED, "E-mail ou senha inválidos.", request);
+    }
+
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ProblemDetail acessoNegado(Exception ex, HttpServletRequest request) {
+        return problema(HttpStatus.FORBIDDEN, "Você não tem permissão para esta operação.", request);
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ProblemDetail conflito(DataIntegrityViolationException ex, HttpServletRequest request) {
         return problema(HttpStatus.CONFLICT, "A operação conflita com os dados existentes.", request);

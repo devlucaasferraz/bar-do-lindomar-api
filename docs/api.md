@@ -23,7 +23,15 @@ GET /produtos?nome=cerveja&categoria=CERVEJAS
 
 Uma pesquisa sem resultados retorna uma coleção vazia com status `200`. Um ID inexistente retorna `404`. A criação retorna `201` com o produto criado e o cabeçalho `Location`; a atualização retorna `200` com o produto atualizado; a remoção retorna `204`, sem corpo.
 
-As rotas de autenticação e o formato final das respostas de listagem serão definidos nas respectivas features.
+## Autenticação implementada
+
+`POST /auth/login` recebe `{"email":"admin@exemplo.com","senha":"sua-senha"}` e retorna `token`, `tipo` (`Bearer`), `expiraEm` em segundos e `usuario` com ID, nome, e-mail e roles. O usuário nunca contém senha ou hash.
+
+Enviar `Authorization: Bearer <token>` para operações administrativas. JWT usa HS256, emissor `bar-do-lindomar-api` e validade padrão de 8 horas, configurável por `JWT_TTL_SECONDS`. Não há refresh token: ao expirar, fazer novo login. Roles são carregadas no token; mudanças de permissões só passam a valer após expiração dos tokens existentes. Credenciais inválidas retornam `401` sem revelar a existência da conta.
+
+Catálogo público: consultas não exigem conta. Escrita exige `ADMIN`. `CLIENTE` permanece no modelo, sem cadastro ou CRUD público. Rotas não previstas são negadas.
+
+O formato final das respostas de listagem será definido na feature de consulta.
 
 ## Tratamento de erros
 
