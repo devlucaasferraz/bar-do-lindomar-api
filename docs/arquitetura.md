@@ -2,7 +2,7 @@
 
 [Voltar ao README](../README.md)
 
-A aplicação segue a arquitetura abaixo. Autenticação, categorias e manutenção de produtos estão implementadas.
+A aplicação segue MVC, com autenticação JWT, categorias e consulta/manutenção de produtos implementadas.
 
 ## Arquitetura e organização
 
@@ -30,7 +30,7 @@ src/
 └── test/java/dev/lucasferraz/bardolindomarapi/
 ```
 
-Essa árvore descreve a organização prevista; os pacotes serão criados conforme as funcionalidades forem implementadas.
+Essa árvore representa a organização implementada.
 
 - **Controllers:** recebem parâmetros e DTOs, acionam validação e delegam aos services.
 - **Services:** aplicam regras de negócio e delimitam transações.
@@ -43,7 +43,7 @@ Essa árvore descreve a organização prevista; os pacotes serão criados confor
 
 ## Modelo de domínio
 
-Os campos abaixo são uma proposta inicial para implementação.
+Todos os IDs são Long gerados pelo banco. O domínio implementado contém:
 
 | Modelo | Dados básicos | Relacionamentos |
 | --- | --- | --- |
@@ -72,11 +72,11 @@ A inclusão exige uma nova versão da API. Não há necessidade de CRUD de categ
 
 Cada entidade deve ter DTOs próprios, validações aplicáveis e mapper MapStruct. DTOs de escrita devem existir apenas para operações expostas pela API; não é necessário criar CRUD de usuários ou roles para cumprir essa organização.
 
-| Modelo | Validações previstas | DTOs previstos |
+| Modelo | Validações | DTOs |
 | --- | --- | --- |
 | Produto | Nome obrigatório, preço obrigatório e não negativo, categoria existente | Criação, atualização e resposta |
 | Categoria | Código e nome obrigatórios, código único e pertencente ao enum | Resposta; entrada validada se uma operação de escrita for adicionada |
-| Usuário | Nome obrigatório, e-mail válido e único, senha obrigatória na criação | Entrada conforme o fluxo de autenticação definido e resposta sem senha |
+| Usuário | Nome obrigatório, e-mail válido e único, senha obrigatória na criação | LoginRequest, LoginResponse e UsuarioResponse sem senha |
 | Role | Nome obrigatório, único e limitado a `ADMIN` e `CLIENTE` | Resposta; entrada validada se uma operação de escrita for adicionada |
 
 Produto usa nome até 120 caracteres, descrição até 500 e preço decimal(12,2) não negativo. Usuário usa nome até 120, e-mail válido até 254 e hash BCrypt; senha inicial tem pelo menos 8 caracteres e no máximo 72 bytes UTF-8. Restrições de integridade também devem existir no banco. Mappers devem ignorar campos controlados pelo servidor, como IDs de criação e hashes de senha.

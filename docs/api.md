@@ -2,51 +2,172 @@
 
 [Voltar ao README](../README.md)
 
-## Contrato HTTP
+## Swagger e OpenAPI
 
-As rotas de produtos, categorias e autenticação estão implementadas.
+Com a aplicação em execução:
+
+- [Swagger UI](http://localhost:8080/swagger-ui/index.html).
+- [OpenAPI JSON](http://localhost:8080/v3/api-docs).
+
+Ajuste a porta se necessário. O Springdoc gera o contrato dos controllers e DTOs; os metadados ficam em `config/OpenApiConfig.java`. Cada feature deve atualizar anotações, exemplos, respostas e estes documentos no mesmo commit.
+
+## Rotas
 
 | Método | Rota | Operação | Acesso |
 | --- | --- | --- | --- |
-| `GET` | `/produtos` | Listar e pesquisar produtos | Admin e cliente |
-| `GET` | `/produtos/{id}` | Consultar um produto | Admin e cliente |
-| `POST` | `/produtos` | Criar um produto | Admin |
-| `PUT` | `/produtos/{id}` | Atualizar um produto | Admin |
-| `DELETE` | `/produtos/{id}` | Remover um produto | Admin |
-| `GET` | `/categorias` | Listar categorias disponíveis | Admin e cliente |
+| POST | `/auth/login` | Obter token | Público |
+| GET | `/categorias` | Listar categorias | Público |
+| GET | `/produtos` | Listar, pesquisar e filtrar | Público |
+| GET | `/produtos/{id}` | Consultar produto | Público |
+| POST | `/produtos` | Criar produto | ADMIN |
+| PUT | `/produtos/{id}` | Substituir dados editáveis | ADMIN |
+| DELETE | `/produtos/{id}` | Remover produto | ADMIN |
 
-A listagem deve aceitar `nome` para pesquisa parcial e `categoria` para filtrar pelo código do enum. Os filtros podem ser combinados:
+IDs são inteiros positivos. A API usa JSON e valores monetários numéricos em reais. Exemplos abaixo são ilustrativos; obtenha IDs reais nas consultas.
 
-```http
-GET /produtos?nome=cerveja&categoria=BEBIDAS_ALCOOLICAS
+## POST /auth/login
+
+Requisição:
+
+```json
+{
+  "email": "admin@exemplo.com",
+  "senha": "sua-senha"
+}
 ```
 
-Uma pesquisa sem resultados retorna uma página com `items` vazio e status `200`. Um ID inexistente retorna `404`. A criação retorna `201` com o produto criado e o cabeçalho `Location`; a atualização retorna `200` com o produto atualizado; a remoção retorna `204`, sem corpo.
+Resposta `200`:
 
-## Autenticação implementada
+```json
+{
+  "token": "<jwt>",
+  "tipo": "Bearer",
+  "expiraEm": 28800,
+  "usuario": {
+    "id": 1,
+    "nome": "Administrador",
+    "email": "admin@exemplo.com",
+    "roles": [{"id": 1, "nome": "ADMIN"}]
+  }
+}
+```
 
-`POST /auth/login` recebe `{"email":"admin@exemplo.com","senha":"sua-senha"}` e retorna `token`, `tipo` (`Bearer`), `expiraEm` em segundos e `usuario` com ID, nome, e-mail e roles. O usuário nunca contém senha ou hash.
+E-mail é normalizado em minúsculas. Campos obrigatórios ou formato inválido retornam 400; credenciais incorretas retornam 401 com mensagem genérica. A resposta não expõe senha ou hash.
 
-Enviar `Authorization: Bearer <token>` para operações administrativas. JWT usa HS256, emissor `bar-do-lindomar-api` e validade padrão de 8 horas, configurável por `JWT_TTL_SECONDS`. Não há refresh token: ao expirar, fazer novo login. Roles são carregadas no token; mudanças de permissões só passam a valer após expiração dos tokens existentes. Credenciais inválidas retornam `401` sem revelar a existência da conta.
+Enviar `Authorization: Bearer <token>` nas operações administrativas. JWT usa HS256 e emissor `bar-do-lindomar-api`. O segredo é externo; a validade padrão é 8 horas e pode ser alterada por `JWT_TTL_SECONDS`. Não há refresh token ou logout com revogação; ao expirar, fazer novo login. Roles são carregadas no token, portanto mudanças de permissão só afetam novos tokens. Trocar o segredo invalida todos os tokens anteriores.
 
-Catálogo público: consultas não exigem conta. Escrita exige `ADMIN`. `CLIENTE` permanece no modelo, sem cadastro ou CRUD público. Rotas não previstas são negadas.
+Consultas não exigem conta. Enviar token inválido ou expirado, mesmo em consulta pública, retorna 401. Não há cadastro público nem CRUD de usuários/roles.
 
-O contrato de paginação está descrito abaixo.
+## GET /categorias
 
-## Tratamento de erros
+Retorna `200` com array ordenado por nome:
 
-O tratamento deve ser centralizado com `@RestControllerAdvice`, utilizando `ProblemDetail` e o tipo de conteúdo `application/problem+json`.
+```json
+[
+  {"id": 1, "codigo": "BEBIDAS", "nome": "Bebidas"},
+  {"id": 2, "codigo": "BEBIDAS_ALCOOLICAS", "nome": "Bebidas alcoólicas"},
+  {"id": 3, "codigo": "DOCES", "nome": "Doces"},
+  {"id": 4, "codigo": "SALGADOS", "nome": "Salgados"}
+]
+```
+
+BEBIDAS exclui alcoólicas; DOCES inclui bombons e chicletes. Não há CRUD de categorias. Para adicionar, atualizar o enum e incluir uma migration.
+
+## POST /produtos e PUT /produtos/{id}
+
+Requisição:
+
+```json
+{
+  "nome": "Refrigerante lata",
+  "descricao": "Lata de 350 ml",
+  "preco": 5.50,
+  "categoriaId": 1
+}
+```
+
+| Campo | Regra |
+| --- | --- |
+| nome | Obrigatório, não vazio, até 120 caracteres; espaços externos são removidos |
+| descricao | Opcional, até 500 caracteres |
+| preco | Obrigatório, não negativo, até 10 dígitos inteiros e 2 casas decimais |
+| categoriaId | Obrigatório, ID positivo de categoria existente |
+
+POST retorna `201`, cabeçalho `Location: /produtos/{id}` e o produto criado. PUT retorna `200` com o produto atualizado. PUT substitui todos os campos editáveis; descrição omitida torna-se nula. Nomes podem se repetir; preço zero é permitido.
+
+Resposta:
+
+```json
+{
+  "id": 1,
+  "nome": "Refrigerante lata",
+  "descricao": "Lata de 350 ml",
+  "preco": 5.50,
+  "categoria": {"id": 1, "codigo": "BEBIDAS", "nome": "Bebidas"}
+}
+```
+
+Produto ou categoria inexistente retorna 404; dados inválidos retornam 400. O ID do produto é gerado pelo servidor e não é alterado no PUT.
+
+## DELETE /produtos/{id}
+
+Remove fisicamente o produto. Sucesso retorna `204`, sem corpo. Produto inexistente, inclusive uma segunda exclusão do mesmo ID, retorna 404.
+
+## GET /produtos/{id}
+
+Retorna `200` com a mesma representação de produto mostrada acima. Produto inexistente retorna 404; ID inválido retorna 400.
+
+## GET /produtos
+
+| Parâmetro | Regra |
+| --- | --- |
+| nome | Opcional, até 120 caracteres, pesquisa parcial sem diferenciar maiúsculas/minúsculas |
+| categoria | Opcional, código exato do enum |
+| page | Inteiro a partir de 0; padrão 0 |
+| size | Inteiro de 1 a 100; padrão 20 |
+
+Filtros combinam-se com E. Nome vazio ou apenas espaços não filtra. Percentuais e sublinhados são literais, não curingas. A pesquisa não remove acentos. Ordenação fixa por nome segundo a ordenação do banco e depois por ID.
+
+```http
+GET /produtos?nome=refrigerante&categoria=BEBIDAS&page=0&size=20
+```
+
+Resposta `200`:
+
+```json
+{
+  "items": [
+    {
+      "id": 1,
+      "nome": "Refrigerante lata",
+      "descricao": "Lata de 350 ml",
+      "preco": 5.50,
+      "categoria": {"id": 1, "codigo": "BEBIDAS", "nome": "Bebidas"}
+    }
+  ],
+  "page": 0,
+  "size": 20,
+  "totalElements": 1,
+  "totalPages": 1
+}
+```
+
+Sem resultados, `items` é vazio e os totais são zero. Página além do fim retorna `items` vazio e mantém os totais da pesquisa. Parâmetros inválidos retornam 400.
+
+## Erros ProblemDetail
+
+O tratamento é centralizado com `@RestControllerAdvice`; falhas de segurança seguem o mesmo padrão. O tipo de conteúdo é `application/problem+json`.
 
 | Status | Situação |
 | --- | --- |
-| `400 Bad Request` | Dados inválidos, enum inválido ou requisição malformada |
-| `401 Unauthorized` | Ausência de autenticação válida |
-| `403 Forbidden` | Usuário autenticado sem permissão |
-| `404 Not Found` | Recurso não encontrado |
-| `409 Conflict` | Violação de unicidade ou conflito de integridade |
-| `500 Internal Server Error` | Erro inesperado |
+| 400 | Dados inválidos, JSON malformado, enum/ID/filtros/paginação inválidos |
+| 401 | Ausência de autenticação necessária, credenciais ou token inválidos/expirados |
+| 403 | Usuário autenticado sem permissão |
+| 404 | Produto ou categoria não encontrado |
+| 409 | Conflito de integridade |
+| 500 | Erro inesperado, sem detalhes internos |
 
-Exemplo de resposta de validação prevista:
+Exemplo de validação de corpo:
 
 ```json
 {
@@ -55,57 +176,8 @@ Exemplo de resposta de validação prevista:
   "status": 400,
   "detail": "Um ou mais campos são inválidos.",
   "instance": "/produtos",
-  "errors": [
-    {
-      "field": "nome",
-      "message": "O nome é obrigatório."
-    }
-  ]
+  "errors": [{"field": "nome", "message": "must not be blank"}]
 }
 ```
 
-Erros de autenticação e autorização devem seguir o mesmo formato, inclusive quando tratados pela camada de segurança antes do controller. Respostas não devem expor stack traces, SQL, senhas ou detalhes internos.
-
-
-## Documentação via Swagger
-
-Com a aplicação em execução:
-
-- [Swagger UI](http://localhost:8080/swagger-ui/index.html)
-- [OpenAPI JSON](http://localhost:8080/v3/api-docs)
-
-Os metadados da API são definidos em `config/OpenApiConfig.java`. O Springdoc gera o contrato a partir dos controllers e DTOs implementados. Enquanto não houver endpoints de negócio, eles não aparecerão no Swagger.
-
-A cada feature, documentar no Swagger:
-
-- Operação e finalidade da rota, com `@Operation` e `@Tag`.
-- Parâmetros, filtros e exemplos de entrada e saída.
-- Códigos de sucesso e de erro com `@ApiResponse`, incluindo `ProblemDetail`.
-- Campos e restrições dos DTOs com `@Schema` e Bean Validation.
-- Requisitos de autenticação e autorização, quando o mecanismo de segurança for implementado.
-
-Os exemplos e as propostas deste documento devem ser atualizados junto com o contrato implementado. Não declarar no Swagger rotas ou esquemas de autenticação ainda inexistentes.
-
-## Categorias implementadas
-
-`GET /categorias` é público e retorna um array de objetos com `id`, `codigo` e `nome`, ordenado por nome. Códigos iniciais: `BEBIDAS`, `BEBIDAS_ALCOOLICAS`, `DOCES` e `SALGADOS`. Bombons/chicletes pertencem a DOCES. Não há CRUD de categorias.
-
-## Manutenção de produtos implementada
-
-POST e PUT recebem `nome` (obrigatório, até 120), `descricao` (opcional, até 500), `preco` (não negativo, até 10 dígitos inteiros e 2 decimais, em reais) e `categoriaId` (ID positivo existente). Exemplo:
-
-```json
-{"nome":"Refrigerante lata","descricao":"350 ml","preco":5.50,"categoriaId":1}
-```
-
-A resposta contém `id`, os campos do produto e `categoria` com ID, código e nome. PUT substitui os campos editáveis; descrição omitida torna-se nula. Nomes podem se repetir. POST retorna 201 e Location; PUT, 200; DELETE físico, 204. Produto ou categoria inexistente retorna 404. Identificadores e dados inválidos retornam 400.
-
-## Consulta pública e paginação
-
-GET `/produtos` aceita `nome` (até 120 caracteres; trecho literal sem diferenciar maiúsculas/minúsculas), `categoria` (código exato do enum), `page` (a partir de 0) e `size` (1 a 100, padrão 20). Filtros combinam-se com E. Nome vazio não filtra; percentuais e sublinhados são literais, não curingas. Ordenação fixa por nome e ID.
-
-```json
-{"items":[],"page":0,"size":20,"totalElements":0,"totalPages":0}
-```
-
-Cada item contém `id`, `nome`, `descricao`, `preco` e `categoria` (`id`, `codigo`, `nome`). Página além do fim retorna items vazio e mantém os totais. Parâmetros inválidos retornam 400. GET `/produtos/{id}` retorna produto ou 404. Ambas as consultas são públicas.
+As mensagens de Bean Validation podem variar com o locale do ambiente. A extensão `errors` é retornada nas validações do corpo; erros de parâmetros podem usar apenas `detail`. Respostas não expõem stack traces, SQL, senhas ou hashes.

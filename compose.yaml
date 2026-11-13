@@ -1,4 +1,21 @@
 services:
+  api:
+    build: .
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-lindomar}
+      DB_USER: ${POSTGRES_USER:-lindomar}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no ambiente ou .env}
+      JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET com pelo menos 32 bytes}
+      JWT_TTL_SECONDS: ${JWT_TTL_SECONDS:-28800}
+      ADMIN_NOME: ${ADMIN_NOME:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_SENHA: ${ADMIN_SENHA:-}
+      SPRING_DOCKER_COMPOSE_ENABLED: "false"
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
   postgres:
     image: postgres:17-alpine
     environment:

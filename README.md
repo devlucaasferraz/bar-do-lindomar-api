@@ -14,7 +14,7 @@
 
 O administrador adiciona, modifica e remove produtos. Clientes consultam o catálogo, pesquisam produtos e filtram por categoria.
 
-O projeto está na fase inicial: há um esqueleto Spring Boot, mas os endpoints de negócio, a autenticação e as entidades ainda serão implementados.
+Catálogo público com pesquisa e paginação. A manutenção de produtos exige login de administrador por JWT.
 
 <h2 id="technologies">💻 Tecnologias</h2>
 
@@ -24,7 +24,9 @@ O projeto está na fase inicial: há um esqueleto Spring Boot, mas os endpoints 
 - PostgreSQL e Flyway.
 - Docker e Docker Compose.
 - Springdoc OpenAPI e Swagger UI.
-- MapStruct para entidades e DTOs — configuração pendente.
+- MapStruct para entidades e DTOs.
+- Spring Security e JWT.
+- Testcontainers para testes com PostgreSQL real.
 
 A arquitetura é MVC. Veja os detalhes de [arquitetura e domínio](docs/arquitetura.md) e as [regras de negócio](docs/regras-de-negocio.md).
 
@@ -47,42 +49,45 @@ cd bar-do-lindomar-api
 
 <h3>Configuração do ambiente</h3>
 
-A configuração atual está em `src/main/resources/application.properties`, e o banco local em `compose.yaml`. Ainda não há `.env.example` nem carregamento de `.env` configurado.
+Copie `.env.example` para `.env`. Defina senha do PostgreSQL, nome/e-mail/senha do administrador inicial e `JWT_SECRET` aleatório com pelo menos 32 bytes. Gere o segredo com `openssl rand -hex 32`.
 
-O Compose usa o banco `mydatabase`, usuário `myuser` e senha local `secret`. A porta do host é dinâmica. Essas credenciais destinam-se ao desenvolvimento.
+```bash
+cp .env.example .env
+```
+
+Edite os valores antes de iniciar. O administrador é criado apenas se ainda não existir; mudar a senha no ambiente depois não altera a conta persistida.
 
 <h3>Iniciando</h3>
 
-Na raiz do projeto, com o Docker disponível:
-
 ```bash
-./mvnw spring-boot:run
+docker compose up --build -d
 ```
 
-A integração Spring Boot Docker Compose gerencia o PostgreSQL local. A porta HTTP padrão esperada é `8080`.
+API em `http://localhost:8080`, com PostgreSQL persistido em volume. Para executar diretamente com Maven, exporte as variáveis da aplicação descritas em [ambiente de desenvolvimento](docs/desenvolvimento.md) e use `./mvnw spring-boot:run`.
 
-Para validar o projeto:
+Para validar, com JDK 25 e Docker disponíveis:
 
 ```bash
 ./mvnw clean verify
 ```
 
-Veja [ambiente de desenvolvimento](docs/desenvolvimento.md) para gerenciamento manual do banco, testes, configuração e migrations.
+Os testes usam PostgreSQL independente via Testcontainers. O `.env` é carregado pelo Compose; a execução direta do Spring exige variáveis exportadas ou configuradas na IDE.
 
 <h2 id="routes">📍 API Endpoints</h2>
 
-**Rotas planejadas; ainda não implementadas.**
+Consultas públicas; operações administrativas usam `Authorization: Bearer <token>`.
 
 | Rota | Descrição | Acesso |
 | --- | --- | --- |
-| <kbd>GET /produtos</kbd> | Listar, pesquisar por nome e filtrar por categoria | Admin e cliente |
-| <kbd>GET /produtos/{id}</kbd> | Consultar produto por ID | Admin e cliente |
+| <kbd>POST /auth/login</kbd> | Entrar com e-mail e senha e receber JWT | Público |
+| <kbd>GET /produtos</kbd> | Listar, pesquisar por nome e filtrar por categoria | Público |
+| <kbd>GET /produtos/{id}</kbd> | Consultar produto por ID | Público |
 | <kbd>POST /produtos</kbd> | Adicionar produto | Admin |
 | <kbd>PUT /produtos/{id}</kbd> | Modificar produto | Admin |
 | <kbd>DELETE /produtos/{id}</kbd> | Remover produto | Admin |
-| <kbd>GET /categorias</kbd> | Listar categorias | Admin e cliente |
+| <kbd>GET /categorias</kbd> | Listar categorias | Público |
 
-Consulte o [contrato proposto e os erros ProblemDetail](docs/api.md). O mecanismo de autenticação ainda será definido.
+Consulte [contratos, exemplos e erros ProblemDetail](docs/api.md). A listagem aceita `nome`, `categoria`, `page` e `size`; JWT expira em 8 horas por padrão, sem refresh token.
 
 <h3>Swagger</h3>
 
@@ -91,7 +96,7 @@ Com a aplicação em execução, acesse:
 - [Swagger UI](http://localhost:8080/swagger-ui/index.html).
 - [OpenAPI JSON](http://localhost:8080/v3/api-docs).
 
-A documentação interativa acompanha os controllers e DTOs implementados. As rotas planejadas serão documentadas no Swagger conforme forem desenvolvidas.
+A documentação interativa descreve os endpoints, DTOs, validações e autenticação Bearer. Use o botão Authorize para testar as operações administrativas.
 
 <h2 id="colab">🤝 Colaboradores</h2>
 

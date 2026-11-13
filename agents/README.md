@@ -13,7 +13,7 @@
 
 Manter a solução simples e seguir MVC. As entidades ficam no pacote `models`, os DTOs em `models/dtos` e os mappers MapStruct em `models/mappers`, dentro de `src/main/java/dev/lucasferraz/bardolindomarapi`.
 
-Cada entidade deve possuir validações, DTOs e mappers adequados às operações expostas. Concentrar regras nos services e tratar exceções de forma centralizada com `ProblemDetail`. Somente administradores podem adicionar, modificar e remover produtos; clientes podem consultar e filtrar por categoria.
+Cada entidade deve possuir validações, DTOs e mappers adequados às operações expostas. Concentrar regras nos services e tratar exceções de forma centralizada com `ProblemDetail`. Somente administradores podem adicionar, modificar e remover produtos. O catálogo e as categorias são públicos; CLIENTE permanece no modelo sem permissão de escrita. Não adicionar cadastro ou CRUD de usuários sem ampliar explicitamente o escopo.
 
 Usar PostgreSQL e migrations Flyway. Novas categorias devem seguir o enum e a entidade definidos na arquitetura. Adicionar comentários somente quando necessários para melhorar a legibilidade.
 
@@ -46,7 +46,7 @@ Ao concluir a implementação, validar a feature e adicionar somente os arquivos
 
 Integrar a feature em `develop`, preservando um único commit por feature; usar squash quando houver commits intermediários. Publicações em produção partem de `develop` para `main`.
 
-As branches locais `main` e `develop` foram criadas a partir do commit inicial. Esta documentação é desenvolvida em `feature/documentacao`. O repositório ainda não possui remoto configurado.
+A documentação e as features aprovadas são integradas em `develop`. `main` permanece reservada à publicação. Não há remoto configurado neste repositório; só executar pull/push depois de configurar um remoto.
 
 ### Critérios de conclusão de uma feature
 

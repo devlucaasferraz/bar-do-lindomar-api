@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class AuthIntegrationTest extends PostgresIntegrationTest {
     @Autowired JwtEncoder encoder;
+    @Autowired org.springframework.jdbc.core.JdbcTemplate jdbc;
     @Autowired UsuarioRepository usuarios;
     @Autowired AdminBootstrap bootstrap;
 
@@ -54,6 +55,10 @@ class AuthIntegrationTest extends PostgresIntegrationTest {
             assertThat(request(method, "/produtos/1", "{}", token("CLIENTE", Instant.now().plusSeconds(600), "bar-do-lindomar-api")).statusCode()).isEqualTo(403);
         }
         assertThat(request("POST", "/produtos", "{}", "invalido").statusCode()).isEqualTo(401);
+        String valid = token("ADMIN", Instant.now().plusSeconds(600), "bar-do-lindomar-api");
+        int signature = valid.lastIndexOf('.') + 1;
+        String tampered = valid.substring(0, signature) + (valid.charAt(signature) == 'A' ? "B" : "A") + valid.substring(signature + 1);
+        assertThat(request("POST", "/produtos", "{}", tampered).statusCode()).isEqualTo(401);
         assertThat(request("POST", "/produtos", "{}", token("ADMIN", Instant.now().minusSeconds(600), "bar-do-lindomar-api")).statusCode()).isEqualTo(401);
         assertThat(request("POST", "/produtos", "{}", token("ADMIN", Instant.now().plusSeconds(600), "outro-emissor")).statusCode()).isEqualTo(401);
     }
@@ -66,6 +71,17 @@ class AuthIntegrationTest extends PostgresIntegrationTest {
         assertThat(after.getId()).isEqualTo(before.getId());
         assertThat(after.getSenhaHash()).isEqualTo(before.getSenhaHash());
         assertThat(usuarios.count()).isEqualTo(1);
+    }
+
+    @Test
+    void bancoImpedeEmailERoleDuplicados() {
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> jdbc.update(
+                "INSERT INTO usuarios (nome, email, senha_hash) VALUES ('Duplicado', 'admin@teste.com', 'hash')"))
+                .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> jdbc.update("INSERT INTO roles (nome) VALUES ('ADMIN')"))
+                .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> jdbc.update("INSERT INTO roles (nome) VALUES ('OUTRA')"))
+                .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
     }
 
     private String token(String role, Instant expires, String issuer) {

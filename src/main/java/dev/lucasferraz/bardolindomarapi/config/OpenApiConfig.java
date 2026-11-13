@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
         title = "Bar do Lindomar API",
         version = "0.0.1-SNAPSHOT",
         description = "API do catálogo de produtos do Bar do Lindomar. "
-                + "Login disponível; catálogo em implementação."
+                + "Consulta pública de produtos e categorias; manutenção exclusiva de administradores."
 ))
 public class OpenApiConfig {
 }
