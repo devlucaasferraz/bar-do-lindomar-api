@@ -1,13 +1,17 @@
 package dev.lucasferraz.bardolindomarapi;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import javax.sql.DataSource;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-class BarDoLindomarApiApplicationTests {
+class BarDoLindomarApiApplicationTests extends PostgresIntegrationTest {
+    @Autowired DataSource dataSource;
 
     @Test
-    void contextLoads() {
+    void carregaContextoComPostgresql() throws Exception {
+        try (var connection = dataSource.getConnection()) {
+            assertThat(connection.getMetaData().getDatabaseProductName()).isEqualTo("PostgreSQL");
+        }
     }
-
 }
